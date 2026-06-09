@@ -1,0 +1,4 @@
+lbm_channel
+results/*.csv
+results/*.txt
+results/*.png
