@@ -1,0 +1,7 @@
+LBM Poiseuille flow, D2Q9, BGK
+nx = 160
+ny = 50
+steps = 20000
+tau = 0.8
+viscosity = 0.1
+forceX = 1e-06
