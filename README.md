@@ -4,6 +4,12 @@
   <img src="https://img.shields.io/badge/C++-17-blue.svg" alt="C++17">
   <img src="https://img.shields.io/badge/Method-LBM%20D2Q9-green.svg" alt="LBM D2Q9">
   <img src="https://img.shields.io/badge/Validation-Poiseuille%20Flow-yellow.svg" alt="Poiseuille flow validation">
+  <a href="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml">
+    <img src="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml/badge.svg" alt="Build and run workflow">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-lightgrey.svg" alt="MIT License">
+  </a>
   <a href="https://kandil2001.github.io/">
     <img src="https://img.shields.io/badge/Portfolio-kandil2001.github.io-2ea44f.svg" alt="Portfolio">
   </a>
@@ -26,6 +32,7 @@ The goal of this repository is not to be a large CFD framework. It is a clean va
 - Periodic boundary condition in the streamwise direction
 - CSV output for velocity fields, centerline validation, and convergence history
 - Python post-processing for validation and convergence figures
+- Basic CI workflow for building, running, and plotting a short validation case
 - Simple structure for future extension to grid studies, OpenMP, MPI, or more complex boundary conditions
 
 ## Physical case
@@ -44,21 +51,31 @@ The current implementation keeps the setup intentionally small so the numerical 
 
 ```text
 .
+├── .github/
+│   ├── ISSUE_TEMPLATE/          # bug report and feature request templates
+│   ├── workflows/ci.yml         # build-and-run GitHub Actions workflow
+│   ├── dependabot.yml           # monthly dependency checks
+│   └── PULL_REQUEST_TEMPLATE.md # pull request checklist
 ├── include/
-│   └── lbm.hpp                 # D2Q9 constants, parameters, and helper functions
+│   └── lbm.hpp                  # D2Q9 constants, parameters, and helper functions
 ├── src/
-│   └── main.cpp                # solver implementation and CSV output
+│   └── main.cpp                 # solver implementation and CSV output
 ├── scripts/
-│   └── plot_results.py         # post-processing and validation plots
+│   └── plot_results.py          # post-processing and validation plots
 ├── results/
-│   ├── centerline_profile.csv  # numerical vs analytical centerline profile
-│   ├── convergence.csv         # convergence history
-│   ├── run_info.txt            # parameters used in the run
-│   ├── velocity_field.csv      # full velocity field output
-│   ├── velocity_profile.png    # validation plot
-│   └── convergence.png         # convergence plot
-├── Makefile                    # build, run, plot, and clean targets
-├── requirements.txt            # Python plotting dependencies
+│   ├── centerline_profile.csv   # numerical vs analytical centerline profile
+│   ├── convergence.csv          # convergence history
+│   ├── run_info.txt             # parameters used in the run
+│   ├── velocity_field.csv       # full velocity field output
+│   ├── velocity_profile.png     # validation plot
+│   └── convergence.png          # convergence plot
+├── CODE_OF_CONDUCT.md           # community behavior expectations
+├── CONTRIBUTING.md              # contribution workflow and checklist
+├── CITATION.cff                 # citation metadata
+├── LICENSE                      # MIT license
+├── SECURITY.md                  # vulnerability reporting policy
+├── Makefile                     # build, run, plot, and clean targets
+├── requirements.txt             # Python plotting dependencies
 └── README.md
 ```
 
@@ -146,6 +163,18 @@ The default run writes the following files to `results/`:
   <img src="results/convergence.png" width="680" alt="LBM convergence history">
 </p>
 
+## Project quality files
+
+This repository includes common project-maintenance files:
+
+- `LICENSE` for reuse terms
+- `SECURITY.md` for responsible reporting of security-related concerns
+- `CONTRIBUTING.md` for contribution workflow and validation expectations
+- `CODE_OF_CONDUCT.md` for respectful project communication
+- `CITATION.cff` so GitHub can show a citation button
+- issue and pull request templates for cleaner collaboration
+- Dependabot configuration for monthly dependency update checks
+
 ## Notes and limitations
 
 This is an educational CFD validation project. The code is written to be readable and easy to extend, not to compete with optimized production CFD solvers.
@@ -159,6 +188,14 @@ Current limitations:
 - basic bounce-back boundary handling
 
 Useful next steps include a grid convergence study, Reynolds number variation, OpenMP parallelization, MPI domain decomposition, and comparison against finite-difference or finite-volume solvers.
+
+## Citation
+
+If you use this repository for learning, teaching, or research, please cite it using the metadata in `CITATION.cff`.
+
+## License
+
+This project is released under the MIT License. See `LICENSE` for details.
 
 ## Author
 
