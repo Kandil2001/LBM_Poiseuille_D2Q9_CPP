@@ -1,4 +1,19 @@
+# Build artifacts
 lbm_channel
+*.o
+*.out
+
+# Generated solver data
 results/*.csv
 results/*.txt
-results/*.png
+
+# Python cache and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store

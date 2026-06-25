@@ -1,7 +1,7 @@
-# LBM Poiseuille Flow Solver D2Q9 C++
+# D2Q9 Lattice Boltzmann Solver for Poiseuille Flow
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Language-C++17-blue.svg" alt="C++17">
+  <img src="https://img.shields.io/badge/C++-17-blue.svg" alt="C++17">
   <img src="https://img.shields.io/badge/Method-LBM%20D2Q9-green.svg" alt="LBM D2Q9">
   <img src="https://img.shields.io/badge/Validation-Poiseuille%20Flow-yellow.svg" alt="Poiseuille flow validation">
   <a href="https://kandil2001.github.io/">
@@ -9,139 +9,159 @@
   </a>
 </p>
 
-This repository contains my C++ implementation of the Lattice Boltzmann Method for 2D Poiseuille channel flow.
+A compact C++ implementation of the **Lattice Boltzmann Method (LBM)** for two-dimensional pressure/body-force-driven Poiseuille flow in a channel.
 
-I built it as a small, readable CFD validation project. The case is useful because the analytical solution is known, so the numerical velocity profile can be compared directly with the expected parabolic profile.
+The goal of this repository is not to be a large CFD framework. It is a clean validation case that shows the main LBM steps clearly: D2Q9 lattice setup, BGK collision, streaming, bounce-back wall boundaries, periodic streamwise direction, and comparison against the analytical parabolic velocity profile.
 
 <p align="center">
-  <img src="results/velocity_profile.png" width="720" alt="LBM velocity profile compared with the analytical Poiseuille solution">
+  <img src="results/velocity_profile.png" width="720" alt="LBM velocity profile compared with analytical Poiseuille solution">
 </p>
 
-## Main features
+## What this project demonstrates
 
-- D2Q9 lattice Boltzmann solver written in C++
-- BGK collision model
-- Constant streamwise driving term
-- Bounce-back boundary condition at the upper and lower walls
-- Periodic channel direction
-- Analytical Poiseuille profile comparison
-- CSV output for post-processing
-- Python plotting script for the validation and convergence figures
-- Simple structure for learning and future extension
+- D2Q9 lattice Boltzmann implementation in modern C++
+- BGK single-relaxation-time collision model
+- Guo-style body-force term for driving the channel flow
+- No-slip upper and lower walls using bounce-back treatment
+- Periodic boundary condition in the streamwise direction
+- CSV output for velocity fields, centerline validation, and convergence history
+- Python post-processing for validation and convergence figures
+- Simple structure for future extension to grid studies, OpenMP, MPI, or more complex boundary conditions
 
-## Why this project
+## Physical case
 
-I made this project as a clean first step into the Lattice Boltzmann Method.
+The simulation represents laminar flow between two parallel plates. A small constant force is applied in the streamwise direction, and the final velocity profile is compared with the analytical Poiseuille solution.
 
-Instead of starting with a complicated geometry or a large CFD framework, I wanted a small solver where the main numerical steps are easy to follow. Poiseuille flow is a good first test because the final velocity profile should become a parabola.
-
-The basic loop is:
+The numerical loop is:
 
 ```text
-collide -> stream -> apply wall boundary conditions -> repeat
+compute macroscopic fields -> collide -> stream -> apply wall bounce-back -> repeat
 ```
 
-## How the solver works
+The current implementation keeps the setup intentionally small so the numerical method remains easy to inspect and modify.
 
-At each lattice node, the D2Q9 model stores nine particle distribution functions. During every time step, the solver updates these distributions and reconstructs the macroscopic velocity field.
+## Repository structure
 
-During the run:
-
-1. Density and velocity are calculated.
-2. The equilibrium distribution is evaluated.
-3. The BGK collision step relaxes the solution toward equilibrium.
-4. The streaming step moves the distributions to neighboring lattice nodes.
-5. Bounce-back is applied at the solid walls.
-6. The centerline velocity profile is compared with the analytical Poiseuille solution.
-
-The top and bottom boundaries are no-slip walls. The left and right sides are periodic, representing a repeating channel section.
-
-## Results from the current run
-
-The uploaded example results were generated with:
-
-```bash
-./lbm_channel 160 50 20000 0.8 1e-6
+```text
+.
+├── include/
+│   └── lbm.hpp                 # D2Q9 constants, parameters, and helper functions
+├── src/
+│   └── main.cpp                # solver implementation and CSV output
+├── scripts/
+│   └── plot_results.py         # post-processing and validation plots
+├── results/
+│   ├── centerline_profile.csv  # numerical vs analytical centerline profile
+│   ├── convergence.csv         # convergence history
+│   ├── run_info.txt            # parameters used in the run
+│   ├── velocity_field.csv      # full velocity field output
+│   ├── velocity_profile.png    # validation plot
+│   └── convergence.png         # convergence plot
+├── Makefile                    # build, run, plot, and clean targets
+├── requirements.txt            # Python plotting dependencies
+└── README.md
 ```
 
-The setup was:
+## Build
 
-| Parameter | Value |
-|---|---:|
-| `nx` | 160 |
-| `ny` | 50 |
-| `steps` | 20000 |
-| `tau` | 0.8 |
-| `viscosity` | 0.1 |
-| `forceX` | 1e-6 |
+Requirements:
 
-The numerical result follows the expected parabolic velocity profile, which shows that the basic LBM algorithm is working correctly for this validation case.
+- A C++17 compiler such as `g++`
+- `make`
+- Python 3 with `numpy`, `pandas`, and `matplotlib` for plotting
 
-<p align="center">
-  <img src="results/convergence.png" width="680" alt="LBM convergence history">
-</p>
-
-The convergence plot is useful for checking whether the solution has approached a steady state.
-
-## Running the code
-
-Build and run the solver with:
+Build the solver:
 
 ```bash
 git clone https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP.git
 cd LBM_Poiseuille_D2Q9_CPP
 make
+```
+
+## Run
+
+Run the default case:
+
+```bash
 ./lbm_channel
 ```
 
-Run a custom case with:
+Run a custom case:
 
 ```bash
-./lbm_channel nx ny steps tau forceX
+./lbm_channel nx ny steps tau forceX [saveEvery]
 ```
 
-Example:
+Example used for the included validation figures:
 
 ```bash
-./lbm_channel 160 50 20000 0.8 1e-6
+./lbm_channel 160 50 20000 0.8 1e-6 200
 ```
 
-Generate the plots with:
+The parameters are:
+
+| Parameter | Meaning | Default |
+|---|---|---:|
+| `nx` | number of lattice nodes in the streamwise direction | `160` |
+| `ny` | number of lattice nodes in the wall-normal direction | `50` |
+| `steps` | number of time steps | `20000` |
+| `tau` | relaxation time; must be greater than `0.5` | `0.8` |
+| `forceX` | constant body force in the streamwise direction | `1e-6` |
+| `saveEvery` | interval for writing convergence values | `200` |
+
+## Plot the results
+
+Install the plotting dependencies:
 
 ```bash
-pip install numpy matplotlib pandas
+python3 -m pip install -r requirements.txt
+```
+
+Generate the validation and convergence figures:
+
+```bash
+make plots
+```
+
+or directly:
+
+```bash
 python3 scripts/plot_results.py
 ```
 
-Clean the build and generated text/CSV outputs with:
+## Example output
 
-```bash
-make clean
-```
+The default run writes the following files to `results/`:
 
-## Repository structure
+| File | Description |
+|---|---|
+| `centerline_profile.csv` | numerical velocity profile and analytical Poiseuille reference |
+| `velocity_field.csv` | full velocity field with `ux`, `uy`, and speed |
+| `convergence.csv` | maximum change in `ux` over the saved intervals |
+| `run_info.txt` | run parameters and derived viscosity |
+| `velocity_profile.png` | comparison between LBM and analytical velocity profile |
+| `convergence.png` | convergence history |
 
-```text
-include/lbm.hpp                  D2Q9 constants, weights, directions, and helpers
-src/main.cpp                     main LBM solver
-scripts/plot_results.py          plotting script
-results/centerline_profile.csv   numerical and analytical velocity profile
-results/velocity_field.csv       full velocity field output
-results/convergence.csv          residual history
-results/run_info.txt             run parameters
-results/velocity_profile.png     velocity validation plot
-results/convergence.png          convergence plot
-Makefile                         build and clean commands
-```
+<p align="center">
+  <img src="results/convergence.png" width="680" alt="LBM convergence history">
+</p>
 
 ## Notes and limitations
 
-This is an educational CFD project, not a production LBM code. The current version focuses on one simple validation case and keeps the implementation intentionally readable.
+This is an educational CFD validation project. The code is written to be readable and easy to extend, not to compete with optimized production CFD solvers.
 
-The results depend on the grid size, relaxation time, driving strength, and number of time steps. If the run is too short, the profile may not fully reach the steady solution.
+Current limitations:
 
-Useful next steps include OpenMP parallelization, MPI domain decomposition, a grid convergence study, Reynolds number variation, and comparison with finite difference or finite volume solvers.
+- single relaxation time BGK model only
+- one simple channel-flow validation case
+- serial implementation
+- no grid-convergence automation yet
+- basic bounce-back boundary handling
+
+Useful next steps include a grid convergence study, Reynolds number variation, OpenMP parallelization, MPI domain decomposition, and comparison against finite-difference or finite-volume solvers.
 
 ## Author
 
-Ahmed Kandil — [Portfolio](https://kandil2001.github.io/) · [GitHub](https://github.com/Kandil2001) · [LinkedIn](https://www.linkedin.com/in/ahmed-kandil03/)
+Ahmed Kandil  
+M.Sc. Computer Simulation in Science, Bergische Universität Wuppertal  
+[Portfolio](https://kandil2001.github.io/) · [GitHub](https://github.com/Kandil2001) · [LinkedIn](https://www.linkedin.com/in/ahmed-kandil03/)

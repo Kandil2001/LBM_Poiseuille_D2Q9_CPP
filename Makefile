@@ -1,14 +1,26 @@
-CXX = g++
-CXXFLAGS = -O2 -std=c++17 -Wall -Wextra -Iinclude
+CXX ?= g++
+CXXFLAGS ?= -O2 -std=c++17 -Wall -Wextra -pedantic -Iinclude
 
-all: lbm_channel
+TARGET := lbm_channel
+SRC := src/main.cpp
+HDR := include/lbm.hpp
 
-lbm_channel: src/main.cpp include/lbm.hpp
-	$(CXX) $(CXXFLAGS) src/main.cpp -o lbm_channel
+.PHONY: all run plots clean clean-all
 
-run: lbm_channel
-	./lbm_channel
+all: $(TARGET)
+
+$(TARGET): $(SRC) $(HDR)
+	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
+
+run: $(TARGET)
+	./$(TARGET)
+
+plots:
+	python3 scripts/plot_results.py
 
 clean:
-	rm -f lbm_channel
+	rm -f $(TARGET)
 	rm -f results/*.csv results/*.txt
+
+clean-all: clean
+	rm -f results/*.png
