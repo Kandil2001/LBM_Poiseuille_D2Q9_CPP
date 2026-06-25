@@ -1,0 +1,27 @@
+name: build-and-run
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Build solver
+        run: make
+
+      - name: Run a short validation case
+        run: ./lbm_channel 80 30 1000 0.8 1e-6 100
+
+      - name: Generate plots
+        run: make plots
