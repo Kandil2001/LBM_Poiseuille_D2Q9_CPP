@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security report
+    url: https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/security
+    about: Please do not open public issues for security-related reports.
