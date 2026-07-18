@@ -1,7 +1,8 @@
 # D2Q9 Lattice Boltzmann Solver for Poiseuille Flow
 
 <p align="center">
-  <img src="https://img.shields.io/badge/C++-17-blue.svg" alt="C++17">
+  <img src="https://img.shields.io/badge/Status-Completed-brightgreen.svg" alt="Completed">
+  <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17">
   <img src="https://img.shields.io/badge/Method-LBM%20D2Q9-green.svg" alt="LBM D2Q9">
   <img src="https://img.shields.io/badge/Validation-Poiseuille%20Flow-yellow.svg" alt="Poiseuille flow validation">
   <a href="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml">
@@ -15,9 +16,9 @@
   </a>
 </p>
 
-A compact C++ implementation of the **Lattice Boltzmann Method (LBM)** for two-dimensional pressure/body-force-driven Poiseuille flow in a channel.
+A completed C++ implementation of the **Lattice Boltzmann Method (LBM)** for two-dimensional body-force-driven Poiseuille flow in a channel.
 
-The goal of this repository is not to be a large CFD framework. It is a clean validation case that shows the main LBM steps clearly: D2Q9 lattice setup, BGK collision, streaming, bounce-back wall boundaries, periodic streamwise direction, and comparison against the analytical parabolic velocity profile.
+The project is a compact validation case that exposes the main LBM steps clearly: D2Q9 lattice setup, BGK collision, streaming, bounce-back wall boundaries, periodic streamwise treatment, and comparison with the analytical parabolic velocity profile.
 
 <p align="center">
   <img src="results/velocity_profile.png" width="720" alt="LBM velocity profile compared with analytical Poiseuille solution">
@@ -25,27 +26,27 @@ The goal of this repository is not to be a large CFD framework. It is a clean va
 
 ## What this project demonstrates
 
-- D2Q9 lattice Boltzmann implementation in modern C++
+- D2Q9 Lattice Boltzmann implementation in modern C++
 - BGK single-relaxation-time collision model
-- Guo-style body-force term for driving the channel flow
-- No-slip upper and lower walls using bounce-back treatment
-- Periodic boundary condition in the streamwise direction
+- Guo-style body-force term
+- no-slip upper and lower walls using bounce-back treatment
+- periodic boundary condition in the streamwise direction
 - CSV output for velocity fields, centerline validation, and convergence history
 - Python post-processing for validation and convergence figures
-- Basic CI workflow for building, running, and plotting a short validation case
-- Simple structure for future extension to grid studies, OpenMP, MPI, or more complex boundary conditions
+- CI workflow for building, running, and plotting a short validation case
+- a clear baseline for future method extensions
 
 ## Physical case
 
-The simulation represents laminar flow between two parallel plates. A small constant force is applied in the streamwise direction, and the final velocity profile is compared with the analytical Poiseuille solution.
+The simulation represents laminar flow between two parallel plates. A small constant force drives the flow in the streamwise direction, and the final velocity profile is compared with the analytical Poiseuille solution.
 
 The numerical loop is:
 
 ```text
-compute macroscopic fields -> collide -> stream -> apply wall bounce-back -> repeat
+compute macroscopic fields → collide → stream → apply wall bounce-back → repeat
 ```
 
-The current implementation keeps the setup intentionally small so the numerical method remains easy to inspect and modify.
+The implementation remains intentionally compact so the numerical method is easy to inspect and modify.
 
 ## Repository structure
 
@@ -63,19 +64,19 @@ The current implementation keeps the setup intentionally small so the numerical 
 ├── scripts/
 │   └── plot_results.py          # post-processing and validation plots
 ├── results/
-│   ├── centerline_profile.csv   # numerical vs analytical centerline profile
+│   ├── centerline_profile.csv   # numerical and analytical centerline profile
 │   ├── convergence.csv          # convergence history
 │   ├── run_info.txt             # parameters used in the run
 │   ├── velocity_field.csv       # full velocity field output
 │   ├── velocity_profile.png     # validation plot
 │   └── convergence.png          # convergence plot
-├── CODE_OF_CONDUCT.md           # community behavior expectations
-├── CONTRIBUTING.md              # contribution workflow and checklist
-├── CITATION.cff                 # citation metadata
-├── LICENSE                      # MIT license
-├── SECURITY.md                  # vulnerability reporting policy
-├── Makefile                     # build, run, plot, and clean targets
-├── requirements.txt             # Python plotting dependencies
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── CITATION.cff
+├── LICENSE
+├── SECURITY.md
+├── Makefile
+├── requirements.txt
 └── README.md
 ```
 
@@ -83,7 +84,7 @@ The current implementation keeps the setup intentionally small so the numerical 
 
 Requirements:
 
-- A C++17 compiler such as `g++`
+- a C++17 compiler such as `g++`
 - `make`
 - Python 3 with `numpy`, `pandas`, and `matplotlib` for plotting
 
@@ -115,16 +116,14 @@ Example used for the included validation figures:
 ./lbm_channel 160 50 20000 0.8 1e-6 200
 ```
 
-The parameters are:
-
 | Parameter | Meaning | Default |
 |---|---|---:|
-| `nx` | number of lattice nodes in the streamwise direction | `160` |
-| `ny` | number of lattice nodes in the wall-normal direction | `50` |
+| `nx` | lattice nodes in the streamwise direction | `160` |
+| `ny` | lattice nodes in the wall-normal direction | `50` |
 | `steps` | number of time steps | `20000` |
 | `tau` | relaxation time; must be greater than `0.5` | `0.8` |
-| `forceX` | constant body force in the streamwise direction | `1e-6` |
-| `saveEvery` | interval for writing convergence values | `200` |
+| `forceX` | constant streamwise body force | `1e-6` |
+| `saveEvery` | convergence-output interval | `200` |
 
 ## Plot the results
 
@@ -140,23 +139,21 @@ Generate the validation and convergence figures:
 make plots
 ```
 
-or directly:
+or:
 
 ```bash
 python3 scripts/plot_results.py
 ```
 
-## Example output
-
-The default run writes the following files to `results/`:
+## Generated output
 
 | File | Description |
 |---|---|
 | `centerline_profile.csv` | numerical velocity profile and analytical Poiseuille reference |
 | `velocity_field.csv` | full velocity field with `ux`, `uy`, and speed |
-| `convergence.csv` | maximum change in `ux` over the saved intervals |
+| `convergence.csv` | maximum change in `ux` over saved intervals |
 | `run_info.txt` | run parameters and derived viscosity |
-| `velocity_profile.png` | comparison between LBM and analytical velocity profile |
+| `velocity_profile.png` | numerical and analytical profile comparison |
 | `convergence.png` | convergence history |
 
 <p align="center">
@@ -165,40 +162,37 @@ The default run writes the following files to `results/`:
 
 ## Project quality files
 
-This repository includes common project-maintenance files:
+The repository includes:
 
 - `LICENSE` for reuse terms
-- `SECURITY.md` for responsible reporting of security-related concerns
-- `CONTRIBUTING.md` for contribution workflow and validation expectations
-- `CODE_OF_CONDUCT.md` for respectful project communication
-- `CITATION.cff` so GitHub can show a citation button
-- issue and pull request templates for cleaner collaboration
-- Dependabot configuration for monthly dependency update checks
+- `SECURITY.md` for responsible reporting
+- `CONTRIBUTING.md` for contribution and validation expectations
+- `CODE_OF_CONDUCT.md` for respectful communication
+- `CITATION.cff` for citation metadata
+- issue and pull-request templates
+- Dependabot configuration
+- GitHub Actions CI
 
-## Notes and limitations
+## Scope and limitations
 
-This is an educational CFD validation project. The code is written to be readable and easy to extend, not to compete with optimized production CFD solvers.
+This completed project is an educational CFD validation case. The code is designed for readability and extension rather than production performance.
 
-Current limitations:
+Current scope:
 
-- single relaxation time BGK model only
-- one simple channel-flow validation case
+- single-relaxation-time BGK model
+- one channel-flow validation case
 - serial implementation
-- no grid-convergence automation yet
-- basic bounce-back boundary handling
+- basic bounce-back boundary treatment
+- no automated grid-convergence study
 
-Useful next steps include a grid convergence study, Reynolds number variation, OpenMP parallelization, MPI domain decomposition, and comparison against finite-difference or finite-volume solvers.
+These are documented scope choices rather than unfinished repository work. Possible follow-up research includes grid refinement, Reynolds-number variation, MRT collision, OpenMP or MPI parallelization, and comparison with finite-difference or finite-volume solvers.
 
 ## Citation
 
-If you use this repository for learning, teaching, or research, please cite it using the metadata in `CITATION.cff`.
-
-## License
-
-This project is released under the MIT License. See `LICENSE` for details.
+Use the metadata in [`CITATION.cff`](CITATION.cff) when citing this project.
 
 ## Author
 
-Ahmed Kandil  
-M.Sc. Computer Simulation in Science, Bergische Universität Wuppertal  
-[Portfolio](https://kandil2001.github.io/) · [GitHub](https://github.com/Kandil2001) · [LinkedIn](https://www.linkedin.com/in/ahmed-kandil03/)
+Ahmed Kandil — [Portfolio](https://kandil2001.github.io/) · [LinkedIn](https://www.linkedin.com/in/ahmed-kandil03/) · [ORCID](https://orcid.org/0009-0007-2724-4565)
+
+Released under the [MIT License](LICENSE).
