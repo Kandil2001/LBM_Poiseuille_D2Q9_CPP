@@ -1,9 +1,18 @@
 cff-version: 1.2.0
-message: "Please cite this repository if you use it."
+message: "If you use this software in academic work, please cite it using this metadata."
 title: "D2Q9 Lattice Boltzmann Solver for Poiseuille Flow"
+type: software
 authors:
-  - family-names: "Kandil"
-    given-names: "Ahmed"
-year: 2026
-license: MIT
+  - family-names: Kandil
+    given-names: Ahmed
+    orcid: "https://orcid.org/0009-0007-2724-4565"
 repository-code: "https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP"
+url: "https://kandil2001.github.io/projects/lbm-poiseuille.html"
+license: MIT
+keywords:
+  - computational fluid dynamics
+  - Lattice Boltzmann Method
+  - D2Q9
+  - Poiseuille flow
+  - C++
+  - numerical validation
