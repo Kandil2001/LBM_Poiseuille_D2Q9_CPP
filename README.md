@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/Status-Completed-brightgreen.svg" alt="Completed">
   <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17">
   <img src="https://img.shields.io/badge/Method-LBM%20D2Q9-green.svg" alt="LBM D2Q9">
-  <img src="https://img.shields.io/badge/Validation-Analytical%20Poiseuille-yellow.svg" alt="Analytical Poiseuille validation">
+  <img src="https://img.shields.io/badge/Validation-Analytical%20Poiseuille-brightgreen.svg" alt="Analytical Poiseuille validation">
   <a href="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml">
     <img src="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml/badge.svg" alt="Build, run, and validate workflow">
   </a>
@@ -16,9 +16,9 @@
   </a>
 </p>
 
-A completed C++ implementation of the **Lattice Boltzmann Method (LBM)** for two-dimensional body-force-driven Poiseuille flow in a channel.
+A compact C++ implementation of the **Lattice Boltzmann Method (LBM)** for two-dimensional body-force-driven Poiseuille flow in a channel.
 
-The project is a compact validation case that exposes the main LBM steps clearly: D2Q9 lattice setup, BGK collision, streaming, bounce-back wall boundaries, periodic streamwise treatment, and comparison with the analytical parabolic velocity profile.
+The project exposes the main LBM steps clearly: D2Q9 lattice setup, BGK collision, streaming, bounce-back wall boundaries, periodic streamwise treatment, and comparison with the analytical parabolic velocity profile.
 
 <p align="center">
   <img src="results/velocity_profile.png" width="720" alt="LBM velocity profile compared with analytical Poiseuille solution">
@@ -34,51 +34,17 @@ The project is a compact validation case that exposes the main LBM steps clearly
 - CSV output for velocity fields, centerline validation, and convergence history
 - Python post-processing for validation and convergence figures
 - CI workflow that builds, runs, plots, verifies outputs, and enforces an analytical error limit
-- a clear baseline for future method extensions
+- compatibility with current compilers and older GCC 8 cluster toolchains
 
 ## Physical case
 
 The simulation represents laminar flow between two parallel plates. A small constant force drives the flow in the streamwise direction, and the final velocity profile is compared with the analytical Poiseuille solution.
-
-The numerical loop is:
 
 ```text
 compute macroscopic fields → collide → stream → apply wall bounce-back → repeat
 ```
 
 The implementation remains intentionally compact so the numerical method is easy to inspect and modify.
-
-## Repository structure
-
-```text
-.
-├── .github/
-│   ├── ISSUE_TEMPLATE/          # bug report and feature request templates
-│   ├── workflows/ci.yml         # build, run, plot, and validation workflow
-│   ├── dependabot.yml           # monthly dependency checks
-│   └── PULL_REQUEST_TEMPLATE.md # pull request checklist
-├── include/
-│   └── lbm.hpp                  # D2Q9 constants, parameters, and helper functions
-├── src/
-│   └── main.cpp                 # solver implementation and CSV output
-├── scripts/
-│   └── plot_results.py          # plots and optional analytical-error gate
-├── results/
-│   ├── centerline_profile.csv   # numerical and analytical centerline profile
-│   ├── convergence.csv          # convergence history
-│   ├── run_info.txt             # parameters used in the run
-│   ├── velocity_field.csv       # full velocity field output
-│   ├── velocity_profile.png     # validation plot
-│   └── convergence.png          # convergence plot
-├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md
-├── CITATION.cff
-├── LICENSE
-├── SECURITY.md
-├── Makefile
-├── requirements.txt
-└── README.md
-```
 
 ## Build
 
@@ -88,13 +54,13 @@ Requirements:
 - `make`
 - Python 3 with `pandas` and `matplotlib` for plotting
 
-Build the solver:
-
 ```bash
 git clone https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP.git
 cd LBM_Poiseuille_D2Q9_CPP
 make
 ```
+
+The Makefile first uses the normal C++17 link command. If an older GCC toolchain still requires the separate filesystem library, it automatically retries with `-lstdc++fs`. This keeps the same build command working on modern systems and on GCC 8-based HPC nodes.
 
 ## Run
 
@@ -110,7 +76,7 @@ Run a custom case:
 ./lbm_channel nx ny steps tau forceX [saveEvery]
 ```
 
-Example used for the included validation figures:
+Example used for the main validation figures:
 
 ```bash
 ./lbm_channel 160 50 20000 0.8 1e-6 200
@@ -133,19 +99,37 @@ Install the plotting dependencies:
 python3 -m pip install -r requirements.txt
 ```
 
-Generate the validation and convergence figures:
+Generate the figures:
 
 ```bash
-python3 scripts/plot_results.py
+make plots
 ```
 
-Optionally enforce a maximum relative `L_inf` profile error:
+Enforce the repository's analytical regression threshold:
 
 ```bash
-python3 scripts/plot_results.py --max-relative-linf 0.05
+make validate
 ```
 
-The command exits with a nonzero status when the error is non-finite or exceeds the selected limit, making it suitable for automated validation.
+The validation command exits with a nonzero status when the relative `L_inf` profile error is non-finite or exceeds `0.05`.
+
+## Stromboli validation — 20 July 2026
+
+A fresh validation case was built and run on the Stromboli HPC cluster with GCC 8.5.0.
+
+| Parameter | Value |
+|---|---:|
+| Grid | `80 × 30` |
+| Time steps | `12,000` |
+| Relaxation time `tau` | `0.8` |
+| Body force `forceX` | `1e-6` |
+| Output interval | `200` |
+| Maximum absolute profile error | `6.50e-7` |
+| Relative `L_inf` profile error | `6.641e-4` (`0.0664%`) |
+| Validation threshold | `0.05` (`5%`) |
+| Result | **Passed** |
+
+The numerical centerline velocity differs from the analytical profile by approximately `6.5e-7` at the sampled points. The complete archived output is in [`results/stromboli_2026-07-20`](results/stromboli_2026-07-20).
 
 ## Continuous integration
 
@@ -153,11 +137,11 @@ The GitHub Actions workflow:
 
 1. builds the C++17 solver
 2. runs an `80 × 30`, `12,000`-step Poiseuille case
-3. generates the validation and convergence figures
+3. generates validation and convergence figures
 4. requires a relative `L_inf` velocity-profile error of at most `0.05`
 5. verifies all expected CSV, text, and PNG outputs
 
-The limit is a regression threshold for this controlled analytical case. It is not a substitute for a formal grid-convergence or uncertainty study.
+The threshold is a regression gate for this controlled analytical case. It is not a substitute for a formal grid-convergence or uncertainty study.
 
 ## Generated output
 
@@ -174,22 +158,22 @@ The limit is a regression threshold for this controlled analytical case. It is n
   <img src="results/convergence.png" width="680" alt="LBM convergence history">
 </p>
 
-## Project quality files
+## Repository structure
 
-The repository includes:
-
-- `LICENSE` for reuse terms
-- `SECURITY.md` for responsible reporting
-- `CONTRIBUTING.md` for contribution and validation expectations
-- `CODE_OF_CONDUCT.md` for respectful communication
-- `CITATION.cff` for citation metadata
-- issue and pull-request templates
-- Dependabot configuration
-- GitHub Actions CI with an analytical validation gate
+```text
+include/lbm.hpp                         D2Q9 constants and helper functions
+src/main.cpp                            solver and CSV output
+scripts/plot_results.py                 plotting and analytical validation
+results/                                reference output used in the README
+results/stromboli_2026-07-20/           archived HPC validation run
+.github/workflows/ci.yml                automated build and validation
+Makefile                                build, run, plot, validate, and clean targets
+requirements.txt                        Python plotting dependencies
+```
 
 ## Scope and limitations
 
-This completed project is an educational CFD validation case. The code is designed for readability and extension rather than production performance.
+This is an educational CFD validation case designed for readability and extension rather than production performance.
 
 Current scope:
 
@@ -199,7 +183,7 @@ Current scope:
 - basic bounce-back boundary treatment
 - no automated grid-convergence study
 
-These are documented scope choices rather than unfinished repository work. Possible follow-up research includes grid refinement, Reynolds-number variation, MRT collision, OpenMP or MPI parallelization, and comparison with finite-difference or finite-volume solvers.
+Possible follow-up work includes grid refinement, Reynolds-number variation, MRT collision, OpenMP or MPI parallelization, and comparison with finite-difference or finite-volume solvers.
 
 ## Citation
 
