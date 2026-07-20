@@ -1,0 +1,2 @@
+The solver and analytical L-infinity validation were completed on Stromboli.
+PNG plots were skipped on compute nodes because their CPUs cannot load the current NumPy wheel.

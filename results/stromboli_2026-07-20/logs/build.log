@@ -1,0 +1,12 @@
+Host: node13.stromboli
+g++: /usr/bin/g++
+g++ (GCC) 8.5.0 20210514 (Red Hat 8.5.0-28)
+rm -f lbm_channel
+rm -f results/*.csv results/*.txt
+g++ -O2 -std=c++17 -Wall -Wextra -pedantic -Iinclude src/main.cpp -o lbm_channel
+/tmp/ccVgiVox.o: In function `main':
+main.cpp:(.text.startup+0xe1): undefined reference to `std::filesystem::__cxx11::path::_M_split_cmpts()'
+main.cpp:(.text.startup+0xee): undefined reference to `std::filesystem::create_directories(std::filesystem::__cxx11::path const&)'
+collect2: error: ld returned 1 exit status
+make: *** [Makefile:13: lbm_channel] Error 1
+Standard build failed; retrying with -lstdc++fs.

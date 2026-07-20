@@ -1,0 +1,8 @@
+LBM Poiseuille flow, D2Q9, BGK
+nx = 80
+ny = 30
+steps = 12000
+saveEvery = 200
+tau = 0.8
+viscosity = 0.1
+forceX = 1e-06
