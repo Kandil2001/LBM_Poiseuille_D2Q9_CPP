@@ -1,18 +1,22 @@
-name: build-and-run
+name: Build, run, and validate
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  build:
+  build-run-validate:
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
 
       - name: Install Python dependencies
         run: python3 -m pip install -r requirements.txt
@@ -20,8 +24,19 @@ jobs:
       - name: Build solver
         run: make
 
-      - name: Run a short validation case
-        run: ./lbm_channel 80 30 1000 0.8 1e-6 100
+      - name: Run analytical validation case
+        run: ./lbm_channel 80 30 12000 0.8 1e-6 200
 
-      - name: Generate plots
-        run: make plots
+      - name: Generate plots and enforce validation limit
+        env:
+          MPLBACKEND: Agg
+        run: python3 scripts/plot_results.py --max-relative-linf 0.05
+
+      - name: Verify generated outputs
+        run: |
+          test -s results/centerline_profile.csv
+          test -s results/convergence.csv
+          test -s results/velocity_field.csv
+          test -s results/run_info.txt
+          test -s results/velocity_profile.png
+          test -s results/convergence.png
