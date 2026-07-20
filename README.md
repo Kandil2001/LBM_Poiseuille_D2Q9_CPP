@@ -4,15 +4,15 @@
   <img src="https://img.shields.io/badge/Status-Completed-brightgreen.svg" alt="Completed">
   <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg" alt="C++17">
   <img src="https://img.shields.io/badge/Method-LBM%20D2Q9-green.svg" alt="LBM D2Q9">
-  <img src="https://img.shields.io/badge/Validation-Poiseuille%20Flow-yellow.svg" alt="Poiseuille flow validation">
+  <img src="https://img.shields.io/badge/Validation-Analytical%20Poiseuille-yellow.svg" alt="Analytical Poiseuille validation">
   <a href="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml">
-    <img src="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml/badge.svg" alt="Build and run workflow">
+    <img src="https://github.com/Kandil2001/LBM_Poiseuille_D2Q9_CPP/actions/workflows/ci.yml/badge.svg" alt="Build, run, and validate workflow">
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-lightgrey.svg" alt="MIT License">
   </a>
-  <a href="https://kandil2001.github.io/">
-    <img src="https://img.shields.io/badge/Portfolio-kandil2001.github.io-2ea44f.svg" alt="Portfolio">
+  <a href="https://kandil2001.github.io/projects/lbm-poiseuille.html">
+    <img src="https://img.shields.io/badge/Portfolio-Case%20Study-2ea44f.svg" alt="Portfolio case study">
   </a>
 </p>
 
@@ -33,7 +33,7 @@ The project is a compact validation case that exposes the main LBM steps clearly
 - periodic boundary condition in the streamwise direction
 - CSV output for velocity fields, centerline validation, and convergence history
 - Python post-processing for validation and convergence figures
-- CI workflow for building, running, and plotting a short validation case
+- CI workflow that builds, runs, plots, verifies outputs, and enforces an analytical error limit
 - a clear baseline for future method extensions
 
 ## Physical case
@@ -54,7 +54,7 @@ The implementation remains intentionally compact so the numerical method is easy
 .
 ├── .github/
 │   ├── ISSUE_TEMPLATE/          # bug report and feature request templates
-│   ├── workflows/ci.yml         # build-and-run GitHub Actions workflow
+│   ├── workflows/ci.yml         # build, run, plot, and validation workflow
 │   ├── dependabot.yml           # monthly dependency checks
 │   └── PULL_REQUEST_TEMPLATE.md # pull request checklist
 ├── include/
@@ -62,7 +62,7 @@ The implementation remains intentionally compact so the numerical method is easy
 ├── src/
 │   └── main.cpp                 # solver implementation and CSV output
 ├── scripts/
-│   └── plot_results.py          # post-processing and validation plots
+│   └── plot_results.py          # plots and optional analytical-error gate
 ├── results/
 │   ├── centerline_profile.csv   # numerical and analytical centerline profile
 │   ├── convergence.csv          # convergence history
@@ -86,7 +86,7 @@ Requirements:
 
 - a C++17 compiler such as `g++`
 - `make`
-- Python 3 with `numpy`, `pandas`, and `matplotlib` for plotting
+- Python 3 with `pandas` and `matplotlib` for plotting
 
 Build the solver:
 
@@ -125,7 +125,7 @@ Example used for the included validation figures:
 | `forceX` | constant streamwise body force | `1e-6` |
 | `saveEvery` | convergence-output interval | `200` |
 
-## Plot the results
+## Plot and validate the results
 
 Install the plotting dependencies:
 
@@ -136,14 +136,28 @@ python3 -m pip install -r requirements.txt
 Generate the validation and convergence figures:
 
 ```bash
-make plots
-```
-
-or:
-
-```bash
 python3 scripts/plot_results.py
 ```
+
+Optionally enforce a maximum relative `L_inf` profile error:
+
+```bash
+python3 scripts/plot_results.py --max-relative-linf 0.05
+```
+
+The command exits with a nonzero status when the error is non-finite or exceeds the selected limit, making it suitable for automated validation.
+
+## Continuous integration
+
+The GitHub Actions workflow:
+
+1. builds the C++17 solver
+2. runs an `80 × 30`, `12,000`-step Poiseuille case
+3. generates the validation and convergence figures
+4. requires a relative `L_inf` velocity-profile error of at most `0.05`
+5. verifies all expected CSV, text, and PNG outputs
+
+The limit is a regression threshold for this controlled analytical case. It is not a substitute for a formal grid-convergence or uncertainty study.
 
 ## Generated output
 
@@ -171,7 +185,7 @@ The repository includes:
 - `CITATION.cff` for citation metadata
 - issue and pull-request templates
 - Dependabot configuration
-- GitHub Actions CI
+- GitHub Actions CI with an analytical validation gate
 
 ## Scope and limitations
 
