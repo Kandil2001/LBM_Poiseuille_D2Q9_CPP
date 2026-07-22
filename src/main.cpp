@@ -153,18 +153,20 @@ void streamAndBounce(
 }
 
 void saveVelocityField(
+    const std::vector<double>& rho,
     const std::vector<double>& ux,
     const std::vector<double>& uy,
     const Params& p
 ) {
     std::ofstream file("results/velocity_field.csv");
-    file << "x,y,ux,uy,speed\n";
+    file << "x,y,rho,ux,uy,speed\n";
 
     for (int y = 1; y < p.ny - 1; ++y) {
         for (int x = 0; x < p.nx; ++x) {
             const int n = id(x, y, p.nx);
             const double speed = std::sqrt(ux[n] * ux[n] + uy[n] * uy[n]);
-            file << x << ',' << y << ',' << ux[n] << ',' << uy[n] << ',' << speed << '\n';
+            file << x << ',' << y << ',' << rho[n] << ',' << ux[n] << ',' << uy[n]
+                 << ',' << speed << '\n';
         }
     }
 }
@@ -280,7 +282,7 @@ int main(int argc, char** argv) {
     }
 
     calculateRhoAndVelocity(f, rho, ux, uy, p);
-    saveVelocityField(ux, uy, p);
+    saveVelocityField(rho, ux, uy, p);
     saveCenterProfile(ux, p);
     saveRunInfo(p);
 
