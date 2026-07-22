@@ -1,4 +1,4 @@
-name: Build, run, and validate
+name: Build, test, and verify
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  build-run-validate:
+  build-test-verify:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,13 +24,16 @@ jobs:
       - name: Build solver
         run: make
 
-      - name: Run analytical validation case
+      - name: Test core LBM formulas
+        run: make test
+
+      - name: Run analytical verification case
         run: ./lbm_channel 80 30 12000 0.8 1e-6 200
 
-      - name: Generate plots and enforce validation limit
+      - name: Generate plots and enforce verification limits
         env:
           MPLBACKEND: Agg
-        run: python3 scripts/plot_results.py --max-relative-linf 0.05
+        run: make verify
 
       - name: Verify generated outputs
         run: |
@@ -38,5 +41,6 @@ jobs:
           test -s results/convergence.csv
           test -s results/velocity_field.csv
           test -s results/run_info.txt
+          test -s results/verification_summary.csv
           test -s results/velocity_profile.png
           test -s results/convergence.png
